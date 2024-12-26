@@ -130,3 +130,36 @@ export const uploadImage = async (req: Request, res: Response) => {
         res.status(500).json({ error: error.message })
     }
 }
+
+export const getUserByHandle = async (req: Request, res: Response) => {
+   try{
+        const { handle } = req.params
+        const user = await User.findOne({handle}).select('-_id -__v -email -password')
+        if(!user){
+            const error = new Error('El usuario no existe')
+            res.status(404).json(error.message)
+            return;
+        }else{
+            res.json(user)
+        }
+    }catch (e){
+        const error = new Error('Hubo un error')
+        res.status(500).json({ error: error.message })
+    }
+}
+
+export const searchByHandle = async (req: Request, res: Response) => {
+    try{
+        const { handle } = req.body
+        const userExists = await User.findOne({handle})
+        if(userExists){
+            const error = new Error(`${handle} ya esta registrado`)
+            res.status(409).json({error: error.message})
+            return;
+        }
+        res.send(`${handle} esta disponible`)
+    }catch (e){
+        const error = new Error('Hubo un error')
+        res.status(500).json({ error: error.message })
+    }
+}
